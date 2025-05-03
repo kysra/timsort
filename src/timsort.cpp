@@ -1,11 +1,26 @@
 #include "../include/timsort.h"
 #include "../include/sorting.h"
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 vector<int> slice_vector(vector<int>& data, int start, int end){
     return vector<int>(data.begin()+start, data.begin()+end);
+}
+void reverse_check(vector<int>& data){
+    int size = data.size();
+    int num = 0;
+    int temp;
+    for (int n=0; n<size; n++){
+        if (data[size-1-n]<data[n]){
+            temp = data[size-1-n];
+            data[size-1-n] = data[n];
+            data[n] = temp;
+        } else {
+                return;
+        }
+    }
 }
 
 void print_vector(const vector<int>& data) {
@@ -67,26 +82,6 @@ vector<int> merge_runs(const vector<int>& left, const vector<int>& right){
         merged.push_back(left[left_idx]);
         left_idx++;
     }
-    /*
-    if (left_idx == left_size && right_idx != right_size){
-        //cout << "RAN OUT OF LEFT INDEX" << endl;
-        for (int n = right_idx; n<right_size; n++){
-            //cout << "ADDING " << right[n] << " FROM RIGHT INDEX " << endl;
-            merged[left_idx + n] = right[n];
-            //cout << "INDEX: " << left_idx + n << endl;
-        }
-      
-    } else if (right_idx == right_size && left_idx != left_size){
-        //cout << "RAN OUT OF RIGHT INDEX" << endl;
-        for (int n = left_idx; n<left_size; n++){
-            //cout << "ADDING " << left[n]<< " FROM LEFT INDEX " << endl;
-            merged[n + right_idx] = left[n];
-            //cout << "INDEX: " << n + right_idx << endl;
-        }
-    }
-   
-    
-    */  
    //cout << "Merged size: " << merged.size() << endl;
    //print_vector (merged);
    return merged;
@@ -118,31 +113,6 @@ void timsort(vector<int>& data) {
     // Determine reverse runs 
 
     // Insertion sort on runs 
-    /*
-    while (index < num_runs){
-        
-        if (index<num_runs-2){
-            segment_multi = slice_vector(data, min_run*index, min_run*(index+2));
-            insertionsort(segment_multi);
-            runs[index] = slice_vector(segment_multi, 0, min_run);
-            runs[index+1] = slice_vector(segment_multi, min_run, min_run*2);
-            cout << "RUN INDEX: " << index << endl; 
-            print_vector(runs[index]);
-            cout << "RUN INDEX: " << index + 1  << endl; 
-            print_vector(runs[index+1]);
-            index+=2;
-        } else {
-            segment = slice_vector(data, min_run*index, min_run*index + leftover_run);
-            segment.resize(leftover_run);
-            insertionsort(segment);
-            runs[index] = segment;
-            cout << "RUN INDEX: " << index << endl; 
-            print_vector(runs[index]);
-            index ++;
-        }
-    }*/
-
-
     for (int i=0; i<num_runs; i++){
         //cout << "i= " << i << endl;
         //cout << "Range: " << min_run*i << " - " << min_run * (i+1) << endl;
@@ -154,39 +124,14 @@ void timsort(vector<int>& data) {
             segment.resize(leftover_run);
 
         }
+        reverse_check(segment);
         insertionsort(segment);
             runs[i] = segment;
     }
 
-        
-        //cout << "SEGMENT: ";
-        //for (int n=0; n<segment.size(); n++){
-        //    cout << segment[n] << " ";
-        //}
-        //cout << endl;
-
-        // Multiple insertions runs 
-    //cout << endl << "RUNS SORTED: " << endl;
-    //for (int n=0; n<num_runs; n++){
-    //    prints_vector(runs[n]);
-    //    cout << endl;
-    //}
-
     // Merge Adjacent runs
     while (runs.size()>1){
         vector<vector<int>> updated_runs;
-        /*
-        vector<int> merged = runs[0];
-        //cout << "MERGING RUNS" << endl;
-        //print_vector(runs[0]);
-        //print_vector(runs[1]);
-        merged = merge_runs(runs[0], runs[1]);
-        //cout << "MERGED VECTOR" << endl;
-        //print_vector(merged);
-        runs.push_back(merged);
-        //runs.erase(runs.begin());
-        //runs.erase(runs.begin());
-        //cout << "Runs size: " << runs.size() << endl;*/
         int size = runs.size();
         for (int i=0; i<size; i +=2){
             //cout << "LOOPING... " << endl;
@@ -202,19 +147,6 @@ void timsort(vector<int>& data) {
     }
 
     data = move(runs[0]);
-    //cout << "FINAL SORT: " << endl;
-    //print_vector(data);
-
-    //cout << "SORING TEST: " << endl;
-    //for (int n=0; n<runs.size(); n++ ){
-    //    cout << "N: " << endl;
-    //    prints_vector(runs[n]);
-    //}
-    //cout << "Vector size: " << data.size() << endl;
-
-
-
-        // Galloping runs 
 
     }
 

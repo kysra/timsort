@@ -4,18 +4,89 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <algorithm>
 
 using namespace std;
 using namespace std::chrono;
 
-vector<int> generate_random_vector(int size) {
+vector<int> generate_random_vector(int size, int max_range, int type) {
+// Generates a vector containing an array of a random integers
+// int size - size of the vector 
+// int range - max value of array
+// int type - type of array to be generated 
+//      1 - fully randomized array
+//      2 - partially sorted array
+//      3 - fully sorted array
+//      4 - reversed array
+//      5 - many duplicates in array
     vector<int> data(size);
-    for (int i = 0; i < size; ++i) {
-        data[i] = rand() % 1000000; // Random numbers between 0 and 999
-    }
-    return data;
-}
+    if (type == 1 ){
+    // fully randomized array
+        for (int i = 0; i < size; ++i) {
+            data[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        return data;
 
+    } else if (type == 2){
+    // partially sorted array
+        vector<int> data_01(size/3);
+        for (int i = 0; i < size/3; ++i) {
+            data_01[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        radix_sort(data_01);
+        vector<int> data_02(size/3);
+        for (int i = 0; i < size/3; ++i) {
+            data_02[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        int size_03 = size - data_01.size() - data_02.size();
+        vector<int> data_03(size_03);
+        for (int i = 0; i < size_03; ++i) {
+            data_03[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        radix_sort(data_03);
+        data = data_01;
+        data.insert(data.end(), data_02.begin(), data_02.end());
+        data.insert(data.end(), data_03.begin(), data_03.end());
+        return data;
+
+    } else if (type == 3){
+    // fully sorted array 
+        for (int i = 0; i < size; i++) {
+            data[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        radix_sort(data);
+        return data;
+
+    } else if (type == 4){
+    // reversed array 
+        for (int i = 0; i < size; i++) {
+            data[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        radix_sort(data);
+        reverse(data.begin(), data.end());
+        return data;
+
+    } else if (type == 5){
+    // high numbers of duplicates
+        for (int i = 0; i < size; i++) {
+            data[i] = rand() % max_range; // Random numbers between 0 and 999
+        }
+        int num = rand() % size;
+        while (num < size*.33){
+            num *= 2;
+        }
+        int dupe = rand() % max_range;
+        for (int i = 0; i <num; i++){
+            data[rand() % size] = dupe;
+        }
+        return data;
+
+    } else {
+        cout << "ERROR: Invalid Input. Try again. " << endl;
+        return data;
+    }
+    
+}
 
 auto measure_function_time(void (*func)(vector<int>&), vector<int>& data) {
     auto start = high_resolution_clock::now();
@@ -31,82 +102,211 @@ auto quicksort_time(vector<int>& data) {
     return duration_cast<microseconds>(end - start).count();
 }
 
-int main(){
-    // Generate a random vector of size 100
-    int size = 1000;
-    vector<int> data;
-    data = generate_random_vector(size);
-    //cout << "UNSORTED DATA: " << endl;  
-    //print_vector(data);
-    radix_sort(data);
-    vector<int> test;
-    vector<int> data_02;
-    
-    data_02 = data;
-    test.reserve(data.size()*2);
-    test = data;
-    
-    test.insert(test.end(), data_02.begin(), data_02.end());
-    test.insert(test.end(), data_02.begin(), data_02.end());
-    data = test;
-
-    //cout << "UNSORTED: " << endl;
-    //print_vector(test);
-    
-
-    /* 
-    //
-    cout << "BUBBLESORT TIME: " << endl;
-    cout << "    " << measure_function_time(bubblesort, test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
-    */
+void run_sorts(vector<int>& data){
+    int size = data.size();
+    vector<int> test = data;
+    if (size >= 10000){
+        cout << "BUBBLE SORT TIME: "<< endl;
+        cout << "   (Omitting bubble sort for array sizes 10,000 or over. It may take too long)" << endl;
+    } else {
+        test = data;
+        cout << "BUBBLE SORT TIME: "<< endl;
+        cout << "    " << measure_function_time(bubblesort, test) << " ms" << endl;
+    }
 
     test = data;
-    //cout << "UNSORTED: " << endl;
-    // print_vector(test);
-    cout << "MERGESORT TIME: "<< endl;
+    cout << "MERGE SORT TIME: "<< endl;
     cout << "    " << measure_function_time(mergesort, test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
 
     test = data;
-    // cout << "UNSORTED: " << endl;
-    //print_vector(test);
     cout << "RADIX SORT TIME: "<< endl;
     cout << "    " << measure_function_time(radix_sort, test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
+
+    if (size >= 100000){
+        cout << "QUICKSORT TIME:" << endl;
+        cout << "   (Omitting quick sort for array sizes 100,000 or over. It may take too long)" << endl;
+    } else {
+        test = data;
+        cout << "QUICKSORT TIME:" << endl;
+        cout << "    " << quicksort_time(test) << " ms" << endl;
+    }
 
     test = data;
-    //cout << "UNSORTED: " << endl;
-    //print_vector(test);
-    cout << "QUICKSORT TIME: "<< endl;
-    cout << "    " << quicksort_time(test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
-
-    test = data;
-    //cout << "UNSORTED: " << endl;
-    //print_vector(test);
     cout << "HEAPSORT TIME: "<< endl;
     cout << "    " << measure_function_time(heapsort, test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
 
-    test = data;
-    //cout << "UNSORTED: " << endl;
-    //print_vector(test);
-    cout << "INSERTION SORT TIME: "<< endl;
-    cout << "    " << measure_function_time(insertionsort, test) << " ms" << endl;
-    //cout << "SORTED: " << endl;
-    //print_vector(test);
+    if (size >= 10000){
+        cout << "INSERTION SORT TIME:" << endl;
+        cout << "   (Omitting insertion sort for array sizes 10,000 or over. It may take too long)" << endl;
+    } else {
+        test = data;
+        cout << "INSERTION SORT TIME:" << endl;
+        cout << "    " << measure_function_time(insertionsort, test) << " ms" << endl;
+    }
    
     test = data;
-    //test=data;
     cout << "TIMSORT SORT TIME: "<< endl;
     cout << "    " << measure_function_time(timsort, test) << " ms" << endl;
-    //print_vector(test);
+}
+
+int main(){
+    cout << endl << endl << endl
+    << "----------------======---------------" << endl
+    << "       CSPB 2270 Data Structures     " << endl
+    << "----------------======----------------" << endl
+    << "This application will generate a variety of randomized data arrays " << endl
+    << "and allow you to run timed tests with various sorting algorithms. " << endl << endl;
+
+    vector<int> data;
+    string input_val;
+    string input_array_type;
+    // Enter array type
+    while (input_val != "q" || input_val != "Q"){
+        cout << "   Enter q to exit" << endl << endl
+        << " What sort of array would you like to test?" << endl
+        << "1 - Fully randomized" << endl
+        << "2 - Partially sorted" << endl
+        << "3 - Fully sorted" << endl
+        << "4 - Reversed sorted" << endl
+        << "5 - High duplication incidence" << endl << endl
+        << "Please enter an integer 1-5" << endl;
+
+        cin >> input_array_type;
+
+        if (cin.fail()){
+            // checks for invalid entry and clears errors if invalid 
+            cin.clear();
+            cout << "ERROR: Invalid input, please try again" << endl << endl;
+            break;
+        } else if (input_array_type == "q" || input_array_type == "Q"){
+            cout << "Quitting... " << endl;
+            input_val = "q";
+            break;
+        } else {
+            try {
+                int input_array_int;
+                input_array_int = stoi(input_array_type);
+                string size_string;
+                string max_string;
+                int size = -1;
+                int max = -1;
+
+                while (size == -1 && max == -1){
+                    cout << "Enter size of array:" << endl;
+                    cin >> size_string;
+                    if (cin.fail()){
+                        // checks for invalid entry and clears errors if invalid 
+                        cin.clear();
+                        cout << "ERROR: Invalid input, please try again" << endl << endl;
+                        break;
+                    } else if (input_array_type == "q" || input_array_type == "Q"){
+                        cout << "Quitting... " << endl;
+                        input_val = "q";
+                        break;
+                    } else {
+                        try {
+                            size = stoi(size_string);
+                        } catch(exception& ex){
+                            cout << endl <<  "ERROR: Invalid input, please try again" << endl << endl;
+                            break;
+                        }
+
+                        cout << "Enter max value of array:" << endl;
+                        cin >> max_string;
+                        if (cin.fail()){
+                            // checks for invalid entry and clears errors if invalid 
+                            cin.clear();
+                            cout << "ERROR: Invalid input, please try again" << endl << endl;
+                            break;
+                        } else if (input_array_type == "q" || input_array_type == "Q"){
+                            cout << "Quitting... " << endl;
+                            input_val = "q";
+                            break;
+                        } else {
+                            try {
+                                size = stoi(size_string);
+                                max = stoi(max_string);
+                            } catch (exception& ex){
+                                cout << endl <<  "ERROR: Invalid input, please try again" << endl << endl;
+                                break;
+                            }
+                        }
+                    
+                data = generate_random_vector(size, max, input_array_int);
+                cout << "Print generated array? Y/N? " << endl;
+                string print_output;
+                cin >> print_output;
+                if (cin.fail()){
+                    // checks for invalid entry and clears errors if invalid 
+                    cin.clear();
+                    cout << "ERROR: Invalid input, please try again" << endl << endl;
+                    break;
+                } else if (input_array_type == "q" || input_array_type == "Q"){
+                    cout << "Quitting... " << endl;
+                    input_val = "q";
+                    break;
+                } else {
+                    if (print_output == "y" || print_output == "Y"){
+                        switch (input_array_int) {
+                            case 1:
+                                cout << endl << "Fully Randomized Sequence: " << endl;
+                                break;
+                            case 2:
+                                cout << endl << "Paritally Sorted Sequence: " << endl;
+                                break;
+                            case 3:
+                                cout << endl << "Fully Sorted Sequence: " << endl;
+                                break;
+                            case 4:
+                                cout << endl << "Reverse Sorted Sequence: " << endl; 
+                                break; 
+                            case 5:
+                                cout << endl << "High Duplication Sequence: " << endl;
+                                break;
+                        }
+                        print_vector(data);
+                        cout << endl;
+                    } else if (print_output == "q" || print_output == "Q") {
+                        input_val = "q";
+                        break;
+                    }
+                }
+                }
+                cout << endl 
+                << "-------------------------" << endl
+                << "   RUNNING SORT TESTS:" << endl << endl
+                << "-------------------------" << endl;
+                run_sorts(data);
+            }   
+            } catch (exception& ex){
+                cout << endl << "ERROR: Invalid input, please try again" << endl << endl;
+            }
+
+        }
+        string repeat;
+        cout << endl << "Generate another array? Y/N?" << endl;
+        cin >> repeat;
+        if (cin.fail()){
+            // checks for invalid entry and clears errors if invalid 
+            cin.clear();
+            cout << "ERROR: Invalid input, please try again" << endl << endl;
+            break;
+        } else if (input_array_type == "q" || input_array_type == "Q"){
+            cout << "Quitting... " << endl;
+            input_val = "q";
+            break;
+        } else {
+            if (repeat != "y" && repeat != "Y"){
+                cout << "Quitting... " << endl;
+                input_val = "q";
+                break;
+            } else {
+                cout << endl << endl;
+            }
+        }
+
+    }
+
     return 0;
 }
 
