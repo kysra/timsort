@@ -57,7 +57,7 @@ void heapsort(vector<int>& data);
 // vector<int>& data - tree to heapify
 // int n - size of the heap
 // int i - index of the root
-void heapify(vector<int>& data, int i);
+void heapify(vector<int>& data, int n, int i);
 
 // insertion heap, works by inserting values into place
 // used in the timsort function
