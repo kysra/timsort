@@ -177,6 +177,7 @@ int main(){
     string input_array_type;
     // Array type menu
     while (input_val != "q" || input_val != "Q"){
+        cout << "---------------------------------"<< endl;
         cout << "   Enter q to exit" << endl << endl
         << " What sort of array would you like to test?" << endl
         << "1 - Fully randomized" << endl

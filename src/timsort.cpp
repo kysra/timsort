@@ -76,7 +76,7 @@ void timsort(vector<int>& data) {
     int size = data.size();
     // if vector size is huge, increases the size of the run
     int min_run = 32;
-    if (size>32*50){
+    if (size>32*100){
         min_run = 64;
     }
 
@@ -85,6 +85,7 @@ void timsort(vector<int>& data) {
 
     // If run is short, insertion sort only
     if (size<min_run){
+        reverse_check(data);
         insertionsort(data);
         return;
     }
