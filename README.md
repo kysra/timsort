@@ -26,4 +26,5 @@ This contains all of the non timsort sorting functions
 ### Timsort 
 This contains the functions needed to run timsort, however, it does use the insertion sort function from the previous section.
 
-
+## Running the application
+run.exe is the compiled project and should work as is. Otherwise, the Makefile and everything needed to compile and run the application yourself is in this repository.
