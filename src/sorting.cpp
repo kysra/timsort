@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -34,9 +34,7 @@ int quicksort_partition(vector<int>& data, int low_idx, int high_idx) {
     // Swapping the pivot as needed
     i++;
     if (data[high_idx] < data[i]){
-      int temp = data[i];
-      data[i] = data[high_idx];
-      data[high_idx] = temp; 
+        swap (data[i], data[high_idx]);
     }
 
     // Return the pivot index
@@ -49,9 +47,7 @@ void bubblesort(vector<int>& data) {
         bool bubble = false;
         for (int n=0; n < vector_size - i - 1; n++){
             if (data[n] > data[n+1]){
-                int temp = data[n];
-                data[n] = data[n+1];
-                data[n+1] = temp;
+                swap(data[n], data[n+1]);
                 bubble = true;
             }
         }
@@ -91,7 +87,7 @@ void mergesort(vector<int>& data) {
 
 void merge(vector<int>& left, vector<int>& right, vector<int>& result) {
 // Declare some starting variables
-    int l = 0, r =0, k =0;
+    int l = 0, r=0, k=0;
     int right_size = right.size();
     int left_size = left.size();
     if (int(result.size())!= (right_size+left_size)){
@@ -100,18 +96,18 @@ void merge(vector<int>& left, vector<int>& right, vector<int>& result) {
     while (l < left_size && r < right_size){
         if (left[l] < right[r]){
         result[k] = left[l];
-        k++;
         l++;
-        } else {
-        result[k] = right[r];
         k++;
+        } else {
+        result[k] =right[r];
         r++;
+        k++;
         }
     } 
     while (l < left_size){
         result[k] = left[l];
-        k++;
         l++;
+        k++;
         }
     while (r < right_size){
         result[k] = right[r];
@@ -178,23 +174,21 @@ void count_sort(vector<int>& data, int pow){
         count_array[index_storage[i]]--;
         result[new_index]= data[i];
     }
-    data = result;
+    data = move(result);
 
 }
 
 void heapsort(vector<int>& data) {
     int size = data.size();
 
-    // Build heap
+    // Heapify non leaves
     for (int i = size/2 - 1; i >= 0; i--){
         heapify(data, size, i);
     }
     
-    // Swap to top and percolate down
+    // Heapify the rest
     for (int i = size - 1; i > 0; i--){
-        int tmp = data[0];
-        data[0] = data[i];
-        data[i] = tmp;
+        swap(data[0], data[i]);
         heapify(data, i, 0);    
     }
 }
@@ -215,9 +209,7 @@ void heapify(vector<int>& data, int n, int i) {
     }
     // If largest is not tree root, swap 
     if (root_idx != i){
-        int tmp = data[i];
-        data[i] = data[root_idx];
-        data[root_idx] = tmp;
+        swap (data[i], data[root_idx]);
         heapify(data, n, root_idx);
     }
 }
@@ -228,32 +220,25 @@ void insertionsort(vector<int>& data){
     sorted[0] = data[0];
     for (int i=1; i< static_cast<int>(data.size()); i++){
         for (int n=last_idx+1; n>0; n--){
+            // inserts values from data into the sorted array
             if (data[i] < sorted[n-1]){
-                //cout << data[i] << " is less than " << sorted[n-1] << endl;
                 sorted[n] = sorted[n-1];
             } else if (data[i]>sorted[last_idx]) {
-                //cout << data[i] << " is greater than " << sorted[last_idx] << endl;
                 sorted[n] = data[i];
                 last_idx++;
                 break;
             } else{
-                //cout << data[i] << " is greater than " << sorted[n-1] << endl;
                 sorted[n+1]=sorted[n];
                 sorted[n] = data[i];
                 last_idx++;
                 break;
             }
             if (n==1){
-                //cout << data[i] << " is the smallest value " << endl;
                 sorted[0] = data[i];
                 last_idx++;
                 break;
             }
         }
-        //cout << "End loop" << endl;
-        //for (int i=0; i<last_idx+1; i++){
-        //    cout << sorted[i] << " ";
-        //}
     }
-    data = sorted;
+    data = move(sorted);
 }
